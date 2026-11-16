@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Harness</title>
+<style>
+  .goog-menu{position:absolute;background:#fff;border:1px solid #999;display:none;padding:4px}
+  .goog-menuitem{padding:4px 12px}
+  #bar span{padding:4px 10px;display:inline-block}
+</style>
+<!-- Minimal stand-in for the Sheets menu DOM. Not a replacement for a test in real Sheets. -->
+<div id="bar"></div>
+<div id="docs-toolbar" style="margin:14px 0">
+  <span class="goog-toolbar-button" aria-label="Undo (⌘Z)">undo</span>
+  <span class="goog-toolbar-button" aria-label="Bold (⌘B)">B</span>
+  <span class="goog-toolbar-menu-button" aria-label="Text color">A</span>
+  <span class="goog-toolbar-menu-button" aria-label="Fill color">fill</span>
+  <span class="goog-toolbar-menu-button" aria-label="Borders">borders</span>
+  <span class="goog-toolbar-button goog-toolbar-button-disabled" aria-label="Redo (⌘Y)">redo</span>
+  <span class="goog-toolbar-button" aria-label="Something new">new</span>
+</div>
+<div id="t-zoom">100%</div>
+<textarea id="grid" style="width:300px;height:80px"></textarea>
+<pre id="log"></pre>
+<script>
+const TREE = {
+  insert: { Rows: { 'Insert 1 row above': 1, 'Insert 1 row below': 1 }, Columns: { 'Insert 1 column left': 1, 'Insert 1 column right': 1 } },
+  edit: { Delete: { Values: 1, 'Row 5': 1, 'Column C': 1 }, Paste: 1, 'Paste special': { 'Data validation only': 1, 'Conditional formatting only': 1, 'All except borders': 1, 'Values only': 1, 'Format only': 1, 'Formula only': 1, 'Column width only': 1, Transposed: 1 } },
+  view: { Freeze: { 'No rows': 1, '1 row': 1, 'Up to row 5': 1, 'No columns': 1, '1 column': 1, 'Up to column C': 1 }, Zoom: { '50%': 1, '75%': 1, '90%': 1, '100%': 1, '125%': 1, '150%': 1, '200%': 1 } },
+};
+const log = (s) => { document.getElementById('log').textContent += s + '\n'; };
+const menus = [];
+document.querySelectorAll('#docs-toolbar span').forEach((b) => { b.style.padding = '4px 10px'; b.addEventListener('mouseup', () => log('TOOLBAR ' + b.getAttribute('aria-label'))); });
+const closeAll = () => menus.forEach((m) => { m.style.display = 'none'; });
+function build(tree, path, x, y) {
+  const menu = document.createElement('div');
+  menu.className = 'goog-menu';
+  menu.style.left = x + 'px'; menu.style.top = y + 'px';
+  document.body.appendChild(menu); menus.push(menu);
+  let row = 0;
+  for (const [label, sub] of Object.entries(tree)) {
+    const item = document.createElement('div');
+    item.className = 'goog-menuitem' + (sub === 1 ? '' : ' goog-submenu');
+    item.innerHTML = `<div class="goog-menuitem-content">${label}<span class="goog-menuitem-accel">⌘X</span></div>`;
+    menu.appendChild(item);
+    if (sub === 1) {
+      item.addEventListener('mouseup', () => { log('MENU ' + [...path, label].join(' > ')); if (/%$/.test(label)) document.getElementById('t-zoom').textContent = label; closeAll(); });
+    } else {
+      const child = build(sub, [...path, label], x + 180, y + row * 28);
+      item.addEventListener('mouseover', () => setTimeout(() => { child.style.display = 'block'; }, 218));
+    }
+    row++;
+  }
+  return menu;
+}
+let x = 0;
+for (const [name, tree] of Object.entries(TREE)) {
+  const btn = document.createElement('span');
+  btn.id = `docs-${name}-menu`; btn.textContent = name;
+  document.getElementById('bar').appendChild(btn);
+  const menu = build(tree, [name], x, 30); x += 70;
+  btn.addEventListener('mousedown', () => { const open = menu.style.display === 'block'; closeAll(); if (!open) { menu.style.display = 'block'; log('OPEN ' + name); } else log('CLOSE ' + name); });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.isTrusted) { log('PASSED ' + e.key); return; }
+  if (e.key === 'Escape') { closeAll(); return; }
+  log('SENT ' + [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', e.metaKey && 'Cmd', e.key, e.keyCode].filter(Boolean).join('+'));
+});
+</script>
+<script>for (const f of ['../shared.js', '../content.js']) document.write(`<script src="${f}?${Date.now()}"><\/script>`);</script>

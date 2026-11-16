@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARC Sheets Mouse Remover (ASMR)</title>
+<style>
+  :root { --bg:#fff; --fg:#1f1f1f; --muted:#6b6b6b; --line:#e3e3e3; --accent:#0b7a43; --warn:#b45309; --field:#f6f6f6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1b1b1b; --fg:#ededed; --muted:#a0a0a0; --line:#343434; --accent:#4cc38a; --warn:#f0a94a; --field:#262626; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 system-ui, sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  p.sub { color:var(--muted); margin:0 0 24px; }
+  .settings { display:flex; flex-wrap:wrap; gap:16px 24px; align-items:end; padding:16px; border:1px solid var(--line); border-radius:10px; margin-bottom:24px; }
+  label.f { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  select, input[type=text], input[type=number] { font:inherit; color:var(--fg); background:var(--field); border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
+  input[type=number] { width:80px; }
+  label.chk { flex-basis:100%; }
+  label.chk span { display:block; color:var(--muted); font-size:12px; margin-left:22px; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:12px; color:var(--muted); font-weight:500; padding:6px 8px; border-bottom:1px solid var(--line); }
+  td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr.off td { opacity:.5; }
+  button { font:inherit; color:var(--fg); background:var(--field); border:1px solid var(--line); border-radius:6px; padding:6px 10px; cursor:pointer; }
+  button:hover { border-color:var(--muted); }
+  button.keys { min-width:150px; text-align:left; font-family:ui-monospace, Menlo, monospace; font-size:13px; }
+  button.keys.rec { border-color:var(--accent); outline:2px solid var(--accent); }
+  button.del { border:none; background:none; color:var(--muted); padding:6px; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .custom { display:block; margin-top:6px; width:100%; }
+  .warn { color:var(--warn); font-size:12px; margin-top:4px; }
+  .bar { display:flex; gap:8px; align-items:center; margin-top:16px; }
+  #status { color:var(--muted); font-size:12px; margin-left:auto; }
+  .help { color:var(--muted); font-size:12px; margin-top:24px; }
+  td.act select { width:100%; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ARC Sheets Mouse Remover (ASMR)</h1>
+  <p class="sub">Excel-style shortcuts for Google Sheets. Changes are saved at once and apply in open Sheets tabs.</p>
+
+  <div class="settings">
+    <label class="f">Sequence trigger
+      <select id="trigger">
+        <option value="Alt+Control:1">Tap Option or Ctrl</option>
+        <option value="Alt:1">Tap Option / Alt</option>
+        <option value="Alt:2">Double-tap Option / Alt</option>
+        <option value="Control:2">Double-tap Ctrl</option>
+        <option value="Shift:2">Double-tap Shift</option>
+      </select>
+    </label>
+    <label class="f">Sequence times out after (seconds)
+      <input id="timeout" type="number" min="0.5" max="30" step="0.5">
+    </label>
+    <label class="chk"><input id="swap" type="checkbox"> Cmd and Ctrl are interchangeable
+      <span>Shortcuts below fire with either key. Any other Ctrl + key in Sheets acts as Cmd + key (Ctrl+C, Ctrl+V, Ctrl+Z, Ctrl+B).</span>
+    </label>
+  </div>
+
+  <table>
+    <thead><tr><th>On</th><th>Keys</th><th>Action</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="bar">
+    <button id="add" class="primary">Add shortcut</button>
+    <button id="reset">Reset to defaults</button>
+    <span id="status"></span>
+  </div>
+
+  <p class="help">
+    Click a key field, then press the new keys. Letters without a modifier build a sequence (finish with Enter).
+    A press with Ctrl, Cmd or Option, or a function key, is saved as a direct shortcut. Esc cancels, Backspace removes the last letter.<br>
+    Custom menu path: the menu labels separated by &gt;, for example <code>Data &gt; Create a filter</code>. A label only has to match the start of the menu entry.
+  </p>
+</main>
+<script src="shared.js"></script>
+<script src="options.js"></script>
+</body>
+</html>
