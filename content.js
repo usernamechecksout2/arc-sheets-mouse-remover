@@ -33,7 +33,7 @@
     box = document.createElement('div');
     box.style.cssText = [
       'position:fixed', 'left:50%', 'bottom:56px', 'transform:translateX(-50%)', 'z-index:2147483647',
-      'background:#1f1f1f', 'color:#fff', 'font:13px/1.5 system-ui,sans-serif', 'padding:10px 14px', 'box-sizing:border-box',
+      'background:#1a1c1c', 'color:#f6f3ec', 'font:13px/1.5 system-ui,sans-serif', 'padding:10px 14px', 'box-sizing:border-box',
       'border-radius:10px', 'box-shadow:0 8px 28px rgba(0,0,0,.4)', 'max-width:92vw', 'display:none',
       'pointer-events:none', 'white-space:pre-wrap',
     ].join(';');
@@ -51,7 +51,7 @@
   const swallowed = new Set(); // codes whose keyup should not reach Sheets
 
   function kbd(text, dim) {
-    return h('span', `display:inline-block;min-width:16px;text-align:center;padding:0 5px;margin-right:3px;border-radius:4px;font:600 11px/18px ui-monospace,Menlo,monospace;${dim ? 'color:#8a8a8a;box-shadow:inset 0 0 0 1px #4a4a4a' : 'background:#3d3d3d;color:#fff'}`, text);
+    return h('span', `display:inline-block;min-width:16px;text-align:center;padding:0 5px;margin-right:3px;border-radius:4px;font:600 11px/18px ui-monospace,Menlo,monospace;${dim ? 'color:#8a8a8a;box-shadow:inset 0 0 0 1px #4a4a4a' : 'background:#d1ff00;color:#1a1c1c'}`, text);
   }
   // Panel after the trigger tap: menu letters plus every sequence that is still reachable.
   function renderSeq() {
@@ -146,7 +146,7 @@
       const tip = h('div', [
         'position:fixed', `left:${Math.round(r.left + r.width / 2 - 9)}px`, `top:${Math.round(r.bottom - 5)}px`,
         'z-index:2147483647', 'min-width:18px', 'text-align:center', 'padding:0 4px', 'border-radius:4px',
-        'background:#1f1f1f', 'color:#fff', 'font:600 11px/18px ui-monospace,Menlo,monospace',
+        'background:#1a1c1c', 'color:#d1ff00', 'font:600 11px/18px ui-monospace,Menlo,monospace',
         'box-shadow:0 1px 4px rgba(0,0,0,.4)', 'pointer-events:none',
       ].join(';'), key);
       (document.body || document.documentElement).appendChild(tip);
@@ -333,7 +333,7 @@
   const PASTE_OPERATIONS = ['N&one', 'A&dd', '&Subtract', '&Multiply', 'D&ivide']; // Sheets has none of these
   const keyOf = (label) => label[label.indexOf('&') + 1].toUpperCase();
 
-  const C = { accent: '#107c41', tint: '#e7f4ec', text: '#1f2328', muted: '#6b7280', line: '#e5e7eb', chip: '#f1f3f4' };
+  const C = { accent: '#2d4039', tint: '#eef0e7', text: '#1a1c1c', muted: '#525252', line: '#e5e5e5', chip: '#f6f3ec', ink: '#1a1c1c', lime: '#d1ff00', paper: '#f6f3ec' };
   let dlg = null; // backdrop
   let dlgCard = null;
   let dlgRadio = 0;
@@ -346,7 +346,7 @@
     return n;
   }
   function chip(text, on) {
-    return h('span', `flex:none;min-width:18px;text-align:center;padding:0 5px;border-radius:5px;font:600 11px/18px ui-monospace,Menlo,monospace;background:${on ? C.accent : C.chip};color:${on ? '#fff' : C.muted}`, text);
+    return h('span', `flex:none;min-width:18px;text-align:center;padding:0 5px;border-radius:5px;font:600 11px/18px ui-monospace,Menlo,monospace;background:${on ? C.ink : C.chip};color:${on ? C.lime : C.muted}`, text);
   }
   function mark(kind, on) {
     const radio = kind === 'radio';
@@ -381,16 +381,16 @@
     const checks = h('div', `display:grid;grid-template-columns:1fr 1fr;column-gap:12px;padding:10px 0;margin:0 0 14px;border-top:1px solid ${C.line};border-bottom:1px solid ${C.line}`,
       option('check', 'Skip &blanks', false, false),
       option('check', 'Transpos&e', dlgTranspose, true, () => { dlgTranspose = !dlgTranspose; renderDialog(); }));
-    const okChip = h('span', 'font:600 11px/18px ui-monospace,Menlo,monospace;padding:0 5px;border-radius:5px;background:rgba(255,255,255,.22)', '↵');
+    const okChip = h('span', 'font:600 11px/18px ui-monospace,Menlo,monospace;padding:0 5px;border-radius:5px;background:#1a1c1c;color:#d1ff00', '↵');
     const buttons = h('div', 'display:flex;gap:8px;align-items:center',
       button(false, false, null, 'Paste Link'),
       h('span', 'flex:1'),
       button(false, true, closeDialog, 'Cancel', chip('Esc', false)),
       button(true, true, applyDialog, 'OK', okChip));
     dlgCard.replaceChildren(
-      h('div', 'display:flex;align-items:baseline;gap:10px;margin:0 8px 16px',
-        h('div', 'font:600 16px/1.2 system-ui,sans-serif', 'Paste Special'),
-        h('div', `font-size:12px;color:${C.muted}`, 'Press a letter, then Enter')),
+      h('div', `display:flex;align-items:baseline;gap:10px;margin:-18px -14px 16px;padding:12px 22px;border-radius:14px 14px 0 0;background:${C.accent}`,
+        h('div', `font:600 15px/1.2 system-ui,sans-serif;color:${C.paper}`, 'Paste Special'),
+        h('div', 'font-size:12px;color:#b8c5c9', 'Press a letter, then Enter')),
       group('Paste', pasteGrid), group('Operation', opGrid), checks, buttons);
   }
   function closeDialog() {

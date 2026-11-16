@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ARC Sheets Mouse Remover (ASMR)",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Excel-style keyboard shortcuts (Alt ribbon sequences) for Google Sheets. Shortcuts are editable.",
   "permissions": [
     "storage",

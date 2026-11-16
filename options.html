@@ -5,46 +5,101 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ARC Sheets Mouse Remover (ASMR)</title>
 <style>
-  :root { --bg:#fff; --fg:#1f1f1f; --muted:#6b6b6b; --line:#e3e3e3; --accent:#0b7a43; --warn:#b45309; --field:#f6f6f6; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#1b1b1b; --fg:#ededed; --muted:#a0a0a0; --line:#343434; --accent:#4cc38a; --warn:#f0a94a; --field:#262626; }
+  @font-face { font-family:'Open Sauce One'; font-weight:400; font-display:swap; src:url(fonts/open-sauce-one-400.woff2) format('woff2'); }
+  @font-face { font-family:'Open Sauce One'; font-weight:500; font-display:swap; src:url(fonts/open-sauce-one-500.woff2) format('woff2'); }
+  @font-face { font-family:'Open Sauce One'; font-weight:700; font-display:swap; src:url(fonts/open-sauce-one-700.woff2) format('woff2'); }
+  :root {
+    --ink:#1a1c1c; --paper:#f6f3ec; --card:#fff; --forest:#2d4039; --lime:#d1ff00; --layer:#b8c5c9;
+    --muted:#525252; --line:#e5e5e5; --field:#f6f3ec; --warn:#b45309; --chip-bg:#1a1c1c; --chip-fg:#d1ff00;
+    --shadow:0 18px 44px -32px rgba(40,35,20,.5); --ease:cubic-bezier(.22,.61,.36,1);
   }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 system-ui, sans-serif; }
-  main { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
-  h1 { font-size:22px; margin:0 0 4px; }
-  p.sub { color:var(--muted); margin:0 0 24px; }
-  .settings { display:flex; flex-wrap:wrap; gap:16px 24px; align-items:end; padding:16px; border:1px solid var(--line); border-radius:10px; margin-bottom:24px; }
-  label.f { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
-  select, input[type=text], input[type=number] { font:inherit; color:var(--fg); background:var(--field); border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
-  input[type=number] { width:80px; }
-  label.chk { flex-basis:100%; }
-  label.chk span { display:block; color:var(--muted); font-size:12px; margin-left:22px; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#f6f3ec; --paper:#141a18; --card:#1f2925; --muted:#b8c5c9; --line:#33413b; --field:#141a18; --warn:#f0a94a; --chip-bg:#0d1110; --shadow:none; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:14px/1.5 'Open Sauce One', Helvetica, Arial, sans-serif; -webkit-font-smoothing:antialiased; }
+  header { background:var(--forest); }
+  .wrap { max-width:880px; margin:0 auto; padding:0 16px; }
+  header .wrap { display:flex; align-items:center; gap:14px; padding-top:22px; padding-bottom:22px; }
+  header img { width:48px; height:48px; border-radius:11px; flex:none; }
+  header h1 { margin:0; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.15; color:#f6f3ec; }
+  header p { margin:2px 0 0; font-size:13px; color:var(--layer); }
+  header .grow { flex:1; min-width:0; }
+  .badge { flex:none; background:var(--lime); color:#1a1c1c; border-radius:999px; padding:4px 12px; font-size:12px; font-weight:700; white-space:nowrap; }
+  main.wrap { padding-top:24px; padding-bottom:64px; }
+  .label { font-size:11px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .settings { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:20px; }
+  .card { background:var(--card); border-radius:18px; box-shadow:var(--shadow); }
+  .set { padding:14px 16px; display:flex; flex-direction:column; gap:6px; }
+  .set.sw { flex-direction:row; align-items:center; gap:12px; }
+  .set.sw > div { flex:1; }
+  .set small { display:block; color:var(--muted); font-size:12px; line-height:1.4; margin-top:2px; }
+  select, input[type=text], input[type=number], input[type=search] {
+    font:inherit; color:var(--ink); background:var(--field); border:1px solid var(--line); border-radius:10px; padding:7px 10px; width:100%;
+    transition:border-color .15s var(--ease);
+  }
+  select:hover, input:hover { border-color:var(--layer); }
+  :focus-visible { outline:2px solid var(--forest); outline-offset:2px; }
+  @media (prefers-color-scheme: dark) { :focus-visible { outline-color:var(--lime); } }
+  input.tg { appearance:none; -webkit-appearance:none; flex:none; width:34px; height:20px; margin:0; border-radius:999px; background:var(--layer); position:relative; cursor:pointer; transition:background .15s var(--ease); }
+  input.tg::after { content:""; position:absolute; left:3px; top:3px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .15s var(--ease), background .15s var(--ease); }
+  input.tg:checked { background:var(--forest); }
+  input.tg:checked::after { transform:translateX(14px); background:var(--lime); }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px; }
+  .bar input[type=search] { flex:1; min-width:180px; border-radius:999px; padding:9px 16px; background:var(--card); }
+  button { font:inherit; color:var(--ink); cursor:pointer; }
+  .pill { border-radius:999px; padding:8px 16px; font-weight:500; border:1px solid var(--ink); background:transparent; transition:transform .15s var(--ease), background .15s var(--ease); }
+  .pill:hover { background:var(--card); }
+  .pill:active { transform:scale(.98); }
+  .pill.primary { background:var(--lime); border-color:var(--lime); color:#1a1c1c; }
+  .pill.primary:hover { background:#c3ee00; }
+  #status { color:var(--muted); font-size:12px; min-width:40px; text-align:right; }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; font-size:12px; color:var(--muted); font-weight:500; padding:6px 8px; border-bottom:1px solid var(--line); }
-  td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  tr.off td { opacity:.5; }
-  button { font:inherit; color:var(--fg); background:var(--field); border:1px solid var(--line); border-radius:6px; padding:6px 10px; cursor:pointer; }
-  button:hover { border-color:var(--muted); }
-  button.keys { min-width:150px; text-align:left; font-family:ui-monospace, Menlo, monospace; font-size:13px; }
-  button.keys.rec { border-color:var(--accent); outline:2px solid var(--accent); }
-  button.del { border:none; background:none; color:var(--muted); padding:6px; }
-  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .custom { display:block; margin-top:6px; width:100%; }
-  .warn { color:var(--warn); font-size:12px; margin-top:4px; }
-  .bar { display:flex; gap:8px; align-items:center; margin-top:16px; }
-  #status { color:var(--muted); font-size:12px; margin-left:auto; }
-  .help { color:var(--muted); font-size:12px; margin-top:24px; }
-  td.act select { width:100%; }
+  .list { overflow:hidden; }
+  tr.grp td { padding:14px 16px 8px; }
+  tr.grp:not(:first-child) td { border-top:1px solid var(--line); }
+  tr.b td { padding:7px 8px; border-top:1px solid var(--line); vertical-align:middle; }
+  tr.b td:first-child { padding-left:16px; width:58px; }
+  tr.b td:last-child { padding-right:10px; width:40px; }
+  tr.b td.k { width:230px; }
+  tr.b:hover { background:color-mix(in srgb, var(--paper) 55%, transparent); }
+  tr.off td.k, tr.off td.act { opacity:.45; }
+  button.keys { display:flex; flex-wrap:wrap; align-items:center; gap:4px; min-width:170px; min-height:34px; text-align:left; background:transparent; border:1px solid transparent; border-radius:10px; padding:5px 8px; }
+  button.keys:hover { border-color:var(--line); background:var(--field); }
+  button.keys.rec { border-color:var(--forest); background:var(--field); box-shadow:0 0 0 3px color-mix(in srgb, var(--lime) 55%, transparent); }
+  button.keys .hint { color:var(--muted); font-size:13px; }
+  button.keys .pre { color:var(--muted); font-size:12px; margin-right:2px; }
+  kbd { font:600 12px/20px ui-monospace, Menlo, monospace; min-width:22px; text-align:center; padding:0 6px; border-radius:6px; background:var(--chip-bg); color:var(--chip-fg); }
+  td.act select { background:transparent; border-color:transparent; }
+  td.act select:hover { border-color:var(--line); background:var(--field); }
+  .custom { margin-top:6px; }
+  button.del { border:none; background:none; color:var(--muted); width:30px; height:30px; border-radius:50%; font-size:13px; }
+  button.del:hover { background:var(--field); color:var(--ink); }
+  .warn { color:var(--warn); font-size:12px; margin:2px 8px 0; }
+  .empty { padding:28px 16px; text-align:center; color:var(--muted); }
+  .help { color:var(--muted); font-size:12px; margin-top:20px; line-height:1.6; }
+  .help code { font-family:ui-monospace, Menlo, monospace; }
+  @media (max-width:640px) {
+    tr.b td.k { width:auto; }
+    button.keys { min-width:110px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
 </style>
 </head>
 <body>
-<main>
-  <h1>ARC Sheets Mouse Remover (ASMR)</h1>
-  <p class="sub">Excel-style shortcuts for Google Sheets. Changes are saved at once and apply in open Sheets tabs.</p>
-
+<header>
+  <div class="wrap">
+    <img src="icons/icon128.png" alt="">
+    <div class="grow">
+      <h1>Sheets Mouse Remover</h1>
+      <p>Excel shortcuts for Google Sheets, by ARC</p>
+    </div>
+    <span class="badge" id="version">ASMR</span>
+  </div>
+</header>
+<main class="wrap">
   <div class="settings">
-    <label class="f">Sequence trigger
+    <label class="card set"><span class="label">Sequence trigger</span>
       <select id="trigger">
         <option value="Alt+Control:1">Tap Option or Ctrl</option>
         <option value="Alt:1">Tap Option / Alt</option>
@@ -53,23 +108,27 @@
         <option value="Shift:2">Double-tap Shift</option>
       </select>
     </label>
-    <label class="f">Sequence times out after (seconds)
+    <label class="card set"><span class="label">Wait for next key</span>
       <input id="timeout" type="number" min="0.5" max="30" step="0.5">
+      <small>Seconds until an open sequence closes when you stop typing.</small>
     </label>
-    <label class="chk"><input id="swap" type="checkbox"> Cmd and Ctrl are interchangeable
-      <span>Shortcuts below fire with either key. Any other Ctrl + key in Sheets acts as Cmd + key (Ctrl+C, Ctrl+V, Ctrl+Z, Ctrl+B).</span>
+    <label class="card set sw">
+      <div><span class="label">Cmd = Ctrl</span>
+        <small>Shortcuts fire with either key. Any other Ctrl + key acts as Cmd + key.</small>
+      </div>
+      <input id="swap" class="tg" type="checkbox">
     </label>
   </div>
 
-  <table>
-    <thead><tr><th>On</th><th>Keys</th><th>Action</th><th></th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-
   <div class="bar">
-    <button id="add" class="primary">Add shortcut</button>
-    <button id="reset">Reset to defaults</button>
+    <input id="search" type="search" placeholder="Search shortcuts" aria-label="Search shortcuts">
+    <button id="add" class="pill primary">Add shortcut</button>
+    <button id="reset" class="pill">Reset</button>
     <span id="status"></span>
+  </div>
+
+  <div class="card list">
+    <table><tbody id="rows"></tbody></table>
   </div>
 
   <p class="help">

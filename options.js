@@ -15,10 +15,28 @@
     }, 150);
   }
 
-  function showKeys(b) {
-    if (!b.keys) return 'click to set';
-    if (b.type === 'chord') return S.isMac ? b.keys.replace(/\bAlt\b/, '⌥').replace(/\bCmd\b/, '⌘') : b.keys;
-    return `${S.triggerLabel(cfg.trigger)} ${b.keys}`;
+  const SYM = { Alt: '⌥', Cmd: '⌘', Ctrl: '⌃', Shift: '⇧' };
+  const kbd = (t) => el('kbd', { textContent: t });
+  function keyNodes(b) {
+    if (!b.keys) return [el('span', { className: 'hint', textContent: 'Click to set' })];
+    if (b.type === 'chord') {
+      return b.keys.replace(/\+\+$/, '+PLUS').split('+')
+        .map((t) => kbd(t === 'PLUS' ? '+' : (S.isMac && SYM[t]) || t));
+    }
+    return [...S.triggerLabel(cfg.trigger).split(' '), ...b.keys.split(' ')].map(kbd);
+  }
+  function keyText(b) {
+    return b.type === 'chord' ? b.keys : `${S.triggerLabel(cfg.trigger)} ${b.keys}`;
+  }
+
+  const GROUPS = ['Rows and columns', 'Navigation', 'View', 'Paste', 'Custom'];
+  function groupOf(b) {
+    const a = b.action;
+    if (a.startsWith('menu:')) return 'Custom';
+    if (/^paste/.test(a)) return 'Paste';
+    if (/^(zoom|freeze|unfreeze)/.test(a)) return 'View';
+    if (/^(prev|next|go)/.test(a)) return 'Navigation';
+    return 'Rows and columns';
   }
 
   function warnings(b, i) {
@@ -42,15 +60,32 @@
     $('trigger').value = `${cfg.trigger.key}:${cfg.trigger.taps}`;
     $('timeout').value = cfg.timeoutMs / 1000;
     $('swap').checked = !!cfg.swapCmdCtrl;
-    rowsEl.replaceChildren(...cfg.bindings.map((b, i) => {
+    const q = $('search').value.trim().toLowerCase();
+    const byGroup = new Map(GROUPS.map((g) => [g, []]));
+    cfg.bindings.forEach((b, i) => {
       const isRec = recording && recording.index === i;
-      const on = el('input', { type: 'checkbox', checked: b.enabled !== false });
+      if (q && !isRec && !`${S.actionLabel(b.action)} ${keyText(b)}`.toLowerCase().includes(q)) return;
+      byGroup.get(groupOf(b)).push(row(b, i));
+    });
+    const out = [];
+    for (const [g, rows] of byGroup) {
+      if (!rows.length) continue;
+      out.push(el('tr', { className: 'grp' }, el('td', { colSpan: 4, className: 'label', textContent: g })), ...rows);
+    }
+    if (!out.length) out.push(el('tr', {}, el('td', { className: 'empty', textContent: q ? 'No shortcut matches. Try another word.' : 'Add your first shortcut.' })));
+    rowsEl.replaceChildren(...out);
+  }
+
+  function row(b, i) {
+    {
+      const isRec = recording && recording.index === i;
+      const on = el('input', { type: 'checkbox', className: 'tg', checked: b.enabled !== false, ariaLabel: 'Enabled' });
       on.addEventListener('change', () => { b.enabled = on.checked; save(); render(); });
 
-      const keys = el('button', {
-        className: 'keys' + (isRec ? ' rec' : ''),
-        textContent: isRec ? (recording.tokens.join(' ') || 'press keys…') : showKeys(b),
-      });
+      const keys = el('button', { className: 'keys' + (isRec ? ' rec' : '') },
+        ...(isRec
+          ? (recording.tokens.length ? recording.tokens.map(kbd) : [el('span', { className: 'hint', textContent: 'Press keys…' })])
+          : keyNodes(b)));
       keys.addEventListener('click', () => { recording = isRec ? null : { index: i, tokens: [] }; render(); });
 
       const isCustom = b.action.startsWith('menu:');
@@ -66,15 +101,15 @@
         actCell.append(path);
       }
 
-      const keyCell = el('td', {}, keys);
+      const keyCell = el('td', { className: 'k' }, keys);
       const w = warnings(b, i);
       if (w) keyCell.append(el('div', { className: 'warn', textContent: w }));
 
       const del = el('button', { className: 'del', title: 'Remove', textContent: '✕' });
       del.addEventListener('click', () => { cfg.bindings.splice(i, 1); recording = null; save(); render(); });
 
-      return el('tr', { className: b.enabled === false ? 'off' : '' }, el('td', {}, on), keyCell, actCell, el('td', {}, del));
-    }));
+      return el('tr', { className: 'b' + (b.enabled === false ? ' off' : '') }, el('td', {}, on), keyCell, actCell, el('td', {}, del));
+    }
   }
 
   function finishRecording(type, keys) {
@@ -117,7 +152,7 @@
     cfg.bindings.push({ type: 'seq', keys: '', action: 'insertRowAbove', enabled: true });
     recording = { index: cfg.bindings.length - 1, tokens: [] };
     render();
-    rowsEl.lastElementChild.scrollIntoView({ block: 'center' });
+    rowsEl.querySelector('.rec')?.scrollIntoView({ block: 'center' });
   });
   $('reset').addEventListener('click', () => {
     if (!confirm('Replace all shortcuts with the defaults?')) return;
@@ -126,6 +161,10 @@
     save();
     render();
   });
+
+  $('search').addEventListener('input', render);
+  const ver = globalThis.chrome?.runtime?.getManifest?.().version;
+  if (ver) $('version').textContent = `ASMR ${ver}`;
 
   S.loadConfig().then((c) => { cfg = c; render(); });
 })();
